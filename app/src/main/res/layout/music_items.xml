@@ -25,11 +25,11 @@
         android:id="@+id/music_file_name"/>
 
     <ImageView
+        android:id="@+id/menuMore"
         android:layout_width="60sp"
         android:layout_height="60sp"
-        android:id="@+id/menuMore"
-        android:src="@drawable/ic_baseline_more"
         android:layout_alignParentEnd="true"
-        android:padding="5sp"/>
+        android:padding="5sp"
+        android:src="@drawable/ic_baseline_more" />
 
 </RelativeLayout>

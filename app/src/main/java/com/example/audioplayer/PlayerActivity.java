@@ -224,7 +224,7 @@ public class PlayerActivity extends AppCompatActivity
             musicService.createMediaPlayer(position);
             metaData(uri);
             song_name.setText(listSongs.get(position).getTitle());
-            artist_name.setText(listSongs.get(position).getArtist()); // daca primesc eroare vin aici
+            //artist_name.setText(listSongs.get(position).getArtist()); // daca primesc eroare vin aici
             seekBar.setMax(musicService.getDuration() / 1000);
             PlayerActivity.this.runOnUiThread(new Runnable() {
                 @Override

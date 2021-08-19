@@ -4,7 +4,13 @@
 
     <item
         android:title="Delete"
+        android:contentDescription="delete"
         android:id="@+id/delete"
+        app:showAsAction="never"/>
+    <item
+        android:title="Info"
+        android:id="@+id/info"
+        android:contentDescription="info"
         app:showAsAction="never"/>
 
 </menu>

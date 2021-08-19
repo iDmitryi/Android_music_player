@@ -26,6 +26,9 @@ import com.google.android.material.snackbar.Snackbar;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder> {
@@ -81,8 +84,15 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
                 popupMenu.setOnMenuItemClickListener((item) -> {
                     switch (item.getItemId()) {
                         case R.id.delete:
-                            Toast.makeText(mContext, "Delete Clicked", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(mContext, "Delete Clicked", Toast.LENGTH_SHORT).show();
                             deleteFile(position, v);
+                            break;
+                        case R.id.info:
+                            try {
+                                infoFile(position, v);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             break;
 
                     }
@@ -90,6 +100,34 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
                 });
             }
         });
+    }
+
+    private void infoFile(int position, View v) throws IOException {
+        Uri contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                Long.parseLong(mFiles.get(position).getId())); // content://
+
+        File file = new File(mFiles.get(position).getPath());
+
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+
+        try {
+            byte[] bytes = new byte[(int) raf.length()];
+            int bytesRead = raf.read(bytes, 0, bytes.length);
+
+                if (UnicodeFormatter.byteToHex(bytes[0]).equals("49")
+                        && UnicodeFormatter.byteToHex(bytes[1]).equals("44")
+                        && UnicodeFormatter.byteToHex(bytes[2]).equals("33")){
+
+                    Snackbar.make(v, "ID3 tag Found", Snackbar.LENGTH_LONG).show();
+            } else {
+                    Snackbar.make(v, "Can`t find ID3 tag", Snackbar.LENGTH_LONG).show();
+                }
+
+        } finally {
+            raf.close();
+        }
+
+
     }
 
     private void deleteFile(int position, View v){
@@ -107,7 +145,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
             notifyItemRangeChanged(position, mFiles.size());
             Snackbar.make(v, "File Deleted", Snackbar.LENGTH_LONG).show();
         } else { // may occur if the file is stored in sdCard
-            Snackbar.make(v, "File Can`t Deleted", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(v, "File Can`t Be Deleted", Snackbar.LENGTH_LONG).show();
 
         }
     }
@@ -145,4 +183,25 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
         notifyDataSetChanged();
     }
 }
+
+    class UnicodeFormatter  {
+
+        static public String byteToHex(byte b) {
+            // Returns hex String representation of byte b
+            char hexDigit[] = {
+                    '0', '1', '2', '3', '4', '5', '6', '7',
+                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+            };
+            char[] array = { hexDigit[(b >> 4) & 0x0f], hexDigit[b & 0x0f] };
+            return new String(array);
+        }
+
+        static public String charToHex(char c) {
+            // Returns hex String representation of char c
+            byte hi = (byte) (c >>> 8);
+            byte lo = (byte) (c & 0xff);
+            return byteToHex(hi) + byteToHex(lo);
+        }
+
+    } // class
 
